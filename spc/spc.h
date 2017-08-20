@@ -40,6 +40,8 @@ class Container {
   static int SetupContainer(void *args);
   // 把配置设置到容器
   void SetConfig() { config_.SetContainer(); }
+  // 设备mount的namespace为private，防止挂载泄露
+  int SetMountNamespace();
   // 设置根目录
   int SetRootDir();
   // 设置fs

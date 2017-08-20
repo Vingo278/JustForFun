@@ -24,17 +24,23 @@ void ContainerConfig::SetContainer() {
 int Container::SetupContainer(void *args) {
   std::cout << "SPC is starting..." << std::endl;
   Container *container = reinterpret_cast<Container *>(args);
-  container->SetConfig();
   std::cout << "Setting config..." << std::endl;
-  container->SetRootDir();
+  container->SetConfig();
+  int ret;
+  std::cout << "Setting mount namespace..." << std::endl;
+  ret = container->SetMountNamespace();
+  if (ret != 0) return ret;
   std::cout << "Setting rootfs..." << std::endl;
-  container->SetFs();
+  ret = container->SetRootDir();
+  if (ret != 0) return ret;
   std::cout << "Setting some fs..." << std::endl;
+  ret = container->SetFs();
+  if (ret != 0) return ret;
   // 对容器进行配置
   // 获取绝对路径命令名字，并调用excl
   /* TODO
   */
-  int ret = execl(container->config_.cmd_.c_str(), "bash", NULL);
+  ret = execl(container->config_.cmd_.c_str(), "bash", NULL);
   std::cout << "SPC is stopping..." << std::endl;
   return ret;
 }
@@ -47,6 +53,14 @@ void Container::Start() {
       this);
   // 等待子进程的推出信号
   waitpid(child_pid, NULL, 0);
+}
+
+int Container::SetMountNamespace() {
+  if (mount(NULL, "/", NULL, MS_PRIVATE, NULL) != 0) {
+    std::cerr << "set mount namespace private fails" << std::endl;
+    return -1;
+  }
+  return 0;
 }
 
 int Container::SetRootDir() {

@@ -9,6 +9,7 @@ OUT=spc-run
 all:
 	$(CXX) -c $(SPC_LIB)
 	$(CXX) $(FLAG) -o $(OUT) $(MAIN) $(SPC_LINK)
+	chmod +x ./build_rootfs.sh
 	-./build_rootfs.sh
 
 clean:
